@@ -1,11 +1,11 @@
 version: 2.1
 orbs:
-  node: circleci/node@1.1.6
+  node: circleci/node@3.0.0
 
 jobs:
   build-and-test:
-    executor:
-      name: default/node
+    docker:
+      - image: node:16.13.2
     steps:
       - checkout
       - node/with-cache:
