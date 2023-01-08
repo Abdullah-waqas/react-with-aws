@@ -5,11 +5,13 @@ orbs:
 jobs:
   build-and-test:
     docker:
-      - image: node:16.13.2
+      - image: circleci/node:16.17.0
     steps:
       - checkout
-      - run: npm install
-      - run: npm test
+      - node/with-cache:
+          steps:
+            - run: npm install
+            - run: npm test
 
 workflows:
   build-and-test:
