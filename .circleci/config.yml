@@ -10,18 +10,18 @@ jobs:
       - run:
           name: Show Current Branch
           command: echo ${CIRCLE_BRANCH}
-      # - restore_cache:
-      #     keys:
-      #       - app-{{ checksum "package.json" }}
-      #       # fallback to using the latest cache if no exact match is found
-      #       - app-
+      - restore_cache:
+          keys:
+            - app-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - app-
       - run:
           name: Install Dependencies
           command: npm install
-      # - save_cache:
-      #     paths:
-      #       - node_modules
-      #     key: app-{{ checksum "package.json" }}
+      - save_cache:
+          paths:
+            - node_modules
+          key: app-{{ checksum "package.json" }}
 
   deploy-to-aws-s3:
     docker:
