@@ -1,21 +1,126 @@
 version: 2.1
-orbs:
-  node: circleci/node@1.1.6
 
 jobs:
-  build-and-test:
-    executor:
-      name: node/default
-    # docker:
-    #   - image: circleci/node:16.17.0
+  build:
+    docker:
+      - image: circleci/node:16.16.0
+    working_directory: ~/repo
     steps:
       - checkout
-      - node/with-cache:
-          steps:
-            - run: npm install
-            - run: npm test
+      - run:
+          name: Show Current Branch
+          command: echo ${CURRENT_BRANCH}
+      - restore_cache:
+          keys:
+            - app-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - app-
+      - run:
+          name: Install Dependencies
+          command: npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: app-{{ checksum "package.json" }}
+
+  deploy-to-aws-s3:
+    docker:
+      - image: circleci/node:16.16.0
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Show Current Branch
+          command: echo ${CURRENT_BRANCH}
+      - run:
+          name: Installing AWS CLI
+          working_directory: /
+          command: |
+            sudo apt-get -y -qq update
+            sudo apt-get install -y awscli
+            sudo apt-get install -y python-pip python-dev build-essential
+
+      - run:
+          name: Build Project
+          command: |
+            npm install
+            npm run build
+            cd build
+            zip ../build.zip -r * .[^.]*
+            echo "Build Successful"
+
+      - run:
+          name: Deploy to AWS S3
+          command: |
+            if ["${CURRENT_BRANCH}" == "master"]
+            then
+              aws --region ${AWS_REGION} s3 sync ~/repo/build s3://${AWS_BUCKET_PRODUCTION} --delete
+            elif ["${CURRENT_BRANCH}" == "staging"]
+            then
+              aws --region ${AWS_REGION} s3 sync ~/repo/build s3://${AWS_BUCKET_STAGING} --delete
+            else
+              aws --region ${AWS_REGION} s3 sync ~/repo/build s3://${AWS_BUCKET_DEV} --delete
+            fi
+
+  deploy-to-cloudfront:
+    docker:
+      - image: circleci/node:16.16.0
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Show Current Branch
+          command: echo ${CURRENT_BRANCH}
+      - run:
+          name: Installing AWS CLI
+          working_directory: /
+          command: |
+            sudo apt-get -y -qq update
+            sudo apt-get install -y awscli
+            sudo apt-get install -y python-pip python-dev build-essential
+
+      - run:
+          name: Build Project
+          command: |
+            npm install
+            npm run build
+            cd build
+            zip ../build.zip -r * .[^.]*
+            echo "Build Successful"
+
+      - run:
+          name: Deploy to AWS Cloudfront
+          command: |
+            aws configure set preview.cloudfront
+            if ["${CURRENT_BRANCH}" == "master"]
+            then
+              aws cloudfront create-invalidation --distribution-id ${PROD_DISTRIBUTION_ID} --path /\*
+            elif ["${CURRENT_BRANCH}" == "staging"]
+            then
+              aws cloudfront create-invalidation --distribution-id ${STAGING_DISTRIBUTION_ID} --path /\*
+            else
+              aws cloudfront create-invalidation --distribution-id ${DEV_DISTRIBUTION_ID} --path /\*
+            fi
 
 workflows:
-  build-and-test:
+  build-and-deploy:
     jobs:
-      - build-and-test
+      - build
+      - deploy-to-aws-s3:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - develop
+                - staging
+                - master
+      - deploy-to-cloudfront:
+          requires:
+            - deploy-to-aws-s3
+          filters:
+            branches:
+              only:
+                - develop
+                - staging
+                - master
