@@ -59,7 +59,7 @@ jobs:
       - *show-current-branch-name
       - *restore-cache
       - *install-dependencies
-      - *save_cache
+      - *save-cache
 
   deploy-to-aws-s3:
     executor: app-executor
