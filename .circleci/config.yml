@@ -50,7 +50,6 @@ aliases:
         zip ../build.zip -r * .[^.]*
         echo "Build Successful"
 
-
 jobs:
   build:
     executor: app-executor
@@ -72,13 +71,16 @@ jobs:
       - run:
           name: Deploy to AWS S3
           command: |
-            if ["${CIRCLE_BRANCH}" == "master"]
-            then
-              aws --region ${AWS_REGION} s3 sync ~/repo/build s3://${AWS_BUCKET_PRODUCTION} --delete
-            elif ["${CIRCLE_BRANCH}" == "staging"]
-            then
-              aws --region ${AWS_REGION} s3 sync ~/repo/build s3://${AWS_BUCKET_STAGING} --delete
+            if [ "${CIRCLE_BRANCH}" == "master" ]
+              then
+                echo "Master S3"
+                aws --region ${AWS_REGION} s3 sync ~/repo/build s3://${AWS_BUCKET_PRODUCTION} --delete
+            elif [ "${CIRCLE_BRANCH}" == "staging" ]
+              then
+                echo "Staging S3"
+                aws --region ${AWS_REGION} s3 sync ~/repo/build s3://${AWS_BUCKET_STAGING} --delete
             else
+              echo "Dev S3"
               aws --region ${AWS_REGION} s3 sync ~/repo/build s3://${AWS_BUCKET_DEV} --delete
             fi
 
@@ -94,13 +96,16 @@ jobs:
           name: Deploy to AWS Cloudfront
           command: |
             aws configure set preview.cloudfront true
-            if ["${CIRCLE_BRANCH}" == "master"]
+            if [ "${CIRCLE_BRANCH}" == "master" ]
             then
+              echo "Master cloudfront"
               aws cloudfront create-invalidation --distribution-id ${PROD_DISTRIBUTION_ID} --path /\*
-            elif ["${CIRCLE_BRANCH}" == "staging"]
+            elif [ "${CIRCLE_BRANCH}" == "staging" ]
             then
+              echo "Staging cloudfront"
               aws cloudfront create-invalidation --distribution-id ${STAGING_DISTRIBUTION_ID} --path /\*
             else
+              echo "dev cloudfront"
               aws cloudfront create-invalidation --distribution-id ${DEV_DISTRIBUTION_ID} --path /\*
             fi
 
