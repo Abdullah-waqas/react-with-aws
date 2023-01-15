@@ -73,7 +73,7 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]
               then
-                echo "Master S3"
+                echo "${AWS_BUCKET_PRODUCTION} => Master S3"
                 aws --region ${AWS_REGION} s3 sync ~/repo/build s3://${AWS_BUCKET_PRODUCTION} --delete
             elif [ "${CIRCLE_BRANCH}" == "staging" ]
               then
@@ -98,7 +98,7 @@ jobs:
             aws configure set preview.cloudfront true
             if [ "${CIRCLE_BRANCH}" == "master" ]
             then
-              echo "Master cloudfront"
+              echo "${PRODUCTION_DISTRIBUTION_ID} => Master cloudfront"
               aws cloudfront create-invalidation --distribution-id ${PRODUCTION_DISTRIBUTION_ID} --path /\*
             elif [ "${CIRCLE_BRANCH}" == "staging" ]
             then
