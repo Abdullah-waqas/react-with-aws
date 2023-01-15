@@ -99,7 +99,7 @@ jobs:
             if [ "${CIRCLE_BRANCH}" == "master" ]
             then
               echo "Master cloudfront"
-              aws cloudfront create-invalidation --distribution-id ${PROD_DISTRIBUTION_ID} --path /\*
+              aws cloudfront create-invalidation --distribution-id ${PRODUCTION_DISTRIBUTION_ID} --path /\*
             elif [ "${CIRCLE_BRANCH}" == "staging" ]
             then
               echo "Staging cloudfront"
