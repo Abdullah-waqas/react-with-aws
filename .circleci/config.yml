@@ -133,7 +133,7 @@ jobs:
               aws cloudfront create-invalidation --distribution-id ${STAGING_DISTRIBUTION_ID} --path /\*
             else
               echo "dev cloudfront"
-              aws cloudfront create-invalidation --distribution-id ${DEV_DISTRIBUTION_ID} --path /\*
+              cloudfront create-invalidation --distribution-id ${DEV_DISTRIBUTION_ID} --path /\*
             fi
 
   notify-via-slack:
