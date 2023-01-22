@@ -77,12 +77,6 @@ jobs:
           name: "Run Linting"
           command: npm run lint
 
-      - slack/notify:
-          channel: "reactwithaws-circleci"
-          event: fail
-          mentions: "@here"
-          template: basic_fail_1
-
   prettier:
     executor: app-executor
     steps:
