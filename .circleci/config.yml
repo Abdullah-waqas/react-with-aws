@@ -9,6 +9,10 @@ executors:
       - image: cimg/node:16.17.0
       # - image: circleci/node:13.3.0
     working_directory: ~/repo
+  slack-executor:
+    docker:
+      - image: cibuilds/base:latest
+    resource_class: small
 
 aliases:
   - &show-current-branch-name
@@ -132,17 +136,23 @@ jobs:
               aws cloudfront create-invalidation --distribution-id ${DEV_DISTRIBUTION_ID} --path /\*
             fi
 
-  notify:
-    executor: app-executor
+  notify-via-slack:
+    # executor: app-executor
+    executor: slack-executor
     steps:
-      - checkout
-      - *show-current-branch-name
-      - *restore-cache
+      # - checkout
+      # - *show-current-branch-name
+      # - *restore-cache
       - slack/notify:
           channel: "reactwithaws-circleci"
           event: pass
           mentions: "@here"
           template: basic_success_1
+      - slack/notify:
+          channel: "reactwithaws-circleci"
+          event: fail
+          mentions: "@here"
+          template: basic_fail_1
 
 workflows:
   build-and-deploy:
