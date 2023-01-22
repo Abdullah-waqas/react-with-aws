@@ -139,7 +139,7 @@ jobs:
       - *show-current-branch-name
       - *restore-cache
       - slack/notify:
-          # channel: "reactwithaws-circleci"
+          channel: "reactwithaws-circleci"
           event: pass
           mentions: "@here"
           template: basic_success_1
