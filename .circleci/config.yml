@@ -77,6 +77,12 @@ jobs:
           name: "Run Linting"
           command: npm run lint
 
+      - slack/notify:
+          channel: "reactwithaws-circleci"
+          event: fail
+          mentions: "@here"
+          template: basic_fail_1
+
   prettier:
     executor: app-executor
     steps:
@@ -133,7 +139,7 @@ jobs:
               aws cloudfront create-invalidation --distribution-id ${STAGING_DISTRIBUTION_ID} --path /\*
             else
               echo "dev cloudfront"
-              cloudfront create-invalidation --distribution-id ${DEV_DISTRIBUTION_ID} --path /\*
+              aws cloudfront create-invalidation --distribution-id ${DEV_DISTRIBUTION_ID} --path /\*
             fi
 
   notify-via-slack:
@@ -154,6 +160,7 @@ jobs:
           event: fail
           mentions: "@here"
           template: basic_fail_1
+
 
 workflows:
   build-and-deploy:
