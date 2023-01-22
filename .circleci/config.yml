@@ -148,6 +148,7 @@ jobs:
           event: pass
           mentions: "@here"
           template: basic_success_1
+
       - slack/notify:
           channel: "reactwithaws-circleci"
           event: fail
