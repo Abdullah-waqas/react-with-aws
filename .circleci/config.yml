@@ -147,50 +147,51 @@ jobs:
 workflows:
   build-and-deploy:
     jobs:
-      - build
-      - linting:
-          requires:
-            - build
-          filters:
-            branches:
-              only:
-                - develop
-                - staging
-                - master
+      # - build
+      # - linting:
+      #     requires:
+      #       - build
+      #     filters:
+      #       branches:
+      #         only:
+      #           - develop
+      #           - staging
+      #           - master
 
-      - prettier:
-          requires:
-            - build
-          filters:
-            branches:
-              only:
-                - develop
-                - staging
-                - master
-      - deploy-to-aws-s3:
-          requires:
-            - prettier
-            - linting
-          filters:
-            branches:
-              only:
-                - develop
-                - staging
-                - master
-      - deploy-to-cloudfront:
-          requires:
-            - deploy-to-aws-s3
-          filters:
-            branches:
-              only:
-                - develop
-                - staging
-                - master
+      # - prettier:
+      #     requires:
+      #       - build
+      #     filters:
+      #       branches:
+      #         only:
+      #           - develop
+      #           - staging
+      #           - master
+      # - deploy-to-aws-s3:
+      #     requires:
+      #       - prettier
+      #       - linting
+      #     filters:
+      #       branches:
+      #         only:
+      #           - develop
+      #           - staging
+      #           - master
+      # - deploy-to-cloudfront:
+      #     requires:
+      #       - deploy-to-aws-s3
+      #     filters:
+      #       branches:
+      #         only:
+      #           - develop
+      #           - staging
+      #           - master
 
       - notify:
-          context: slack-secrets-react-with-aws
-          requires:
-            - deploy-to-cloudfront
+          # context: slack-secrets-react-with-aws
+          context: slack-secrets
+          # requires:
+          #   - deploy-to-cloudfront
           filters:
             branches:
               only:
