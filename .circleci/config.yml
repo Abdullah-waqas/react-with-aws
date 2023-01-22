@@ -197,7 +197,7 @@ workflows:
                 - staging
                 - master
 
-      - notify:
+      - notify-via-slack:
           # context: slack-secrets-react-with-aws
           context: slack-secrets
           requires:
