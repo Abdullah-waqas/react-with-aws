@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import BuggyCounter from './BuggyCounter';
 
 const debounce = (func, t) => {
   let timer;
@@ -81,6 +82,7 @@ function App() {
 
   return (
     <div className="App">
+      <BuggyCounter />
       <input
         type="text"
         className="search"
